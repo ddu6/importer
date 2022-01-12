@@ -1,28 +1,29 @@
-export class Importer<Mods extends Object>{
-    readonly mods: {
+export function createImporter<Mods extends Object>(modToURL: {
+    [key in keyof Mods]: string
+}) {
+    const mods: {
         [key in keyof Mods]?: Mods[key]
     } = {}
-    readonly target = new EventTarget()
-    constructor(readonly modToURL: {
-        [key in keyof Mods]: string
-    }) {
-        for (const name of <(keyof typeof modToURL)[]>Object.keys(modToURL)) {
-            this.target.addEventListener(`load-${name}`, async () => {
-                this.mods[name] = await new Function(`return import(${JSON.stringify(modToURL[name])})`)()
-                this.target.dispatchEvent(new Event(`loaded-${name}`))
-            }, {once: true})
-        }
+    const target = new EventTarget()
+    for (const name of <(keyof typeof modToURL)[]>Object.keys(modToURL)) {
+        target.addEventListener(`load-${name}`, async () => {
+            mods[name] = await new Function(`return import(${JSON.stringify(modToURL[name])})`)()
+            target.dispatchEvent(new Event(`loaded-${name}`))
+        }, {once: true})
     }
-    async getMod<T extends keyof Mods>(name: T): Promise<Mods[T]> {
-        const val = this.mods[name]
+    async function getMod<T extends keyof Mods>(name: T): Promise<Mods[T]> {
+        const val = mods[name]
         if (val !== undefined) {
             return <Mods[T]>val
         }
-        this.target.dispatchEvent(new Event(`load-${name}`))
+        target.dispatchEvent(new Event(`load-${name}`))
         return new Promise(r => {
-            this.target.addEventListener(`loaded-${name}`, () => {
-                r(<Mods[T]>this.mods[name])
+            target.addEventListener(`loaded-${name}`, () => {
+                r(<Mods[T]>mods[name])
             })
         })
+    }
+    return {
+        getMod
     }
 }
