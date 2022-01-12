@@ -1,0 +1,15 @@
+{
+  "name": "@ddu6/importer",
+  "version": "0.0.0",
+  "description": "Importer",
+  "main": "dist/mod.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ddu6/importer.git"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=8.0.0"
+  }
+}
