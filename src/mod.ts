@@ -5,7 +5,7 @@ export function createImporter<Mods extends Object>(modToURL: {
         [key in keyof Mods]?: Mods[key]
     } = {}
     const target = new EventTarget()
-    for (const name of <(keyof typeof modToURL)[]>Object.keys(modToURL)) {
+    for (const name in modToURL) {
         target.addEventListener(`load-${name}`, async () => {
             mods[name] = await new Function(`return import(${JSON.stringify(modToURL[name])})`)()
             target.dispatchEvent(new Event(`loaded-${name}`))
